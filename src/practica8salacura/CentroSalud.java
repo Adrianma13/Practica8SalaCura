@@ -4,6 +4,7 @@
  */
 package practica8salacura;
 
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -13,46 +14,93 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class CentroSalud {
 
-    private int sanitarios = 3;
-    boolean salaInfectada = false;
-    Lock mutex = new ReentrantLock();
+    private int sanitarios;
+    boolean salaInfectada;
+    CanvasCentroSalud canvas;
+    private Lock mutex = new ReentrantLock();
 
-    public void EntraPacienteI() throws InterruptedException {
+    private Condition colaPInfeccion = mutex.newCondition();
+    private Condition colaPNormal = mutex.newCondition();
+    private Condition Limpiador = mutex.newCondition();
+    
+    public CentroSalud(CanvasCentroSalud canvas){
+        this.canvas=canvas;
+        this.salaInfectada = false;
+        this.sanitarios = 3;
+    }
+
+    public void EntraPacienteI(int id) throws InterruptedException {
         mutex.lock();
-        while (sanitarios < 2 || salaInfectada) {
-            wait();
+        canvas.entraCola(0, id);
+        try {
+            while (sanitarios < 2 || salaInfectada) {
+                colaPInfeccion.await();
+            }
+            sanitarios -= 2;
+        } finally {
+            mutex.unlock();
         }
-        sanitarios -= 2;
-        mutex.unlock();
     }
 
     public void EntraPacienteN() throws InterruptedException {
-        while (sanitarios == 0 || salaInfectada) {
-            wait();
+        mutex.lock();
+        try {
+            while (sanitarios == 0 || salaInfectada) {
+                colaPNormal.await();
+            }
+            sanitarios--;
+        } finally {
+            mutex.unlock();
         }
-        sanitarios--;
 
     }
 
     public void SalePacienteI() {
         mutex.lock();
-        sanitarios += 2;
-        salaInfectada = true;
-        mutex.unlock();
+        try {
+            sanitarios += 2;
+            salaInfectada = true;
+            if (sanitarios == 3 && salaInfectada) {
+                Limpiador.signal();
+            }
+        } finally {
+            mutex.unlock();
+        }
 
     }
 
     public void SalePacienteN() {
         mutex.lock();
-        sanitarios ++;
-        
-        mutex.unlock();
+        try {
+            sanitarios++;
+            if (sanitarios == 3 && salaInfectada) {
+                Limpiador.signal();
+            }
+        } finally {
+            mutex.unlock();
+        }
     }
 
-    public void EntraLimpiador() {
+    public void EntraLimpiador() throws InterruptedException {
+        mutex.lock();
+        try {
+            while (sanitarios != 3 || !salaInfectada) {
+                Limpiador.await();
+            }
+            sanitarios = 0;
+        } finally {
+            mutex.unlock();
+        }
     }
 
     public void SaleLimpiador() {
+        mutex.lock();
+        try {
+            sanitarios = 3;
+            salaInfectada = false;
+        } finally {
+            mutex.unlock();
+        }
     }
 
 }

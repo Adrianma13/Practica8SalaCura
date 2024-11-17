@@ -49,35 +49,36 @@ public class Practica8CentroSalud extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
-        
-        CentroSalud cs=new CentroSalud();
-        
-           Practica8CentroSalud f = new Practica8CentroSalud();
-       /* CanvasCentro cv = new CanvasCentro(900,600);
-        f.setSize(900, 600);
-        f.add(cv);
-        f.setVisible(true);*/
+    public static void main(String args[]) throws InterruptedException {
 
+        Practica8CentroSalud f = new Practica8CentroSalud();
+         CanvasCentroSalud canvas = new CanvasCentroSalud(900,600);
+        f.setSize(900, 600);
+        f.add(canvas);
+        f.setVisible(true);
+        CentroSalud cs = new CentroSalud(canvas);
         Thread[] pacientes = new Thread[50];
+        Limpiador limpiador;
         PInfeccion PacienteI;
-        CentroSalud cj = new CentroSalud();
         Random rnd = new Random();
         rnd.setSeed(System.currentTimeMillis());
         try {
-
-            for (int i = 0; i < 50; i++) {
+            limpiador=new Limpiador(cs);
+             pacientes[0] = new Thread(limpiador);
+            pacientes[0].start();
+            for (int i = 1; i < 50; i++) {
                 if (rnd.nextInt(100) < 75) {
-                    pacientes[i] = new PNormal();
+                    pacientes[i] = new PNormal(cs,i);
                     pacientes[i].start();
                 } else {
-                    PacienteI = new PInfeccion();
+                    PacienteI = new PInfeccion(cs,i);
                     pacientes[i] = new Thread(PacienteI);
                     pacientes[i].start();
                 }
                 Thread.sleep((rnd.nextInt(2) + 1) * 500);
             }
-            for (int i = 0; i < 20; i++) {
+            
+            for (int i = 0; i < 50; i++) {
                 pacientes[i].join();
             }
             Thread.sleep(2000);
@@ -86,31 +87,7 @@ public class Practica8CentroSalud extends javax.swing.JFrame {
             Logger.getLogger(Practica8CentroSalud.class.getName()).log(Level.SEVERE, null, ex);
 
         }
-        
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Practica8CentroSalud.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Practica8CentroSalud.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Practica8CentroSalud.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Practica8CentroSalud.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
 
-      
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

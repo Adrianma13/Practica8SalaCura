@@ -15,21 +15,28 @@ import java.util.logging.Logger;
 public class PNormal extends Thread {
     
     private CentroSalud cs;
-    public PNormal(CentroSalud cs){
+    int id;
+    public PNormal(CentroSalud cs,int id){
         this.cs=cs;
-            
+        this.id=id;
          }
     @Override
     public void run(){
          Random rnd = new Random();
         rnd.setSeed(System.currentTimeMillis());
         
-        cs.EntraPacienteN();
+        try {
+            cs.EntraPacienteN();
+            System.out.println("Entra el Paciente Normal en la sala");
+        } catch (InterruptedException ex) {
+            Logger.getLogger(PNormal.class.getName()).log(Level.SEVERE, null, ex);
+        }
         try {
             Thread.sleep((rnd.nextInt(5) + 1) * 1000);
         } catch (InterruptedException ex) {
             Logger.getLogger(PNormal.class.getName()).log(Level.SEVERE, null, ex);
         }
         cs.SalePacienteN();
+        System.out.println("Sale el Paciente Normal en la sala");
     }
 }

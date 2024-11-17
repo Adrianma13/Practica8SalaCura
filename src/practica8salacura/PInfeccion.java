@@ -15,9 +15,11 @@ import java.util.logging.Logger;
 public class PInfeccion implements Runnable {
 
     CentroSalud cs;
+    int id;
 
-    PInfeccion() {
-        
+    public PInfeccion(CentroSalud cs,int id) {
+        this.cs=cs;
+        this.id=id;
     }
 
     @Override
@@ -25,12 +27,18 @@ public class PInfeccion implements Runnable {
         Random rnd = new Random();
         rnd.setSeed(System.currentTimeMillis());
 
-        cs.EntraPacienteI();
+        try {
+            cs.EntraPacienteI(id);
+            System.out.println("Entra el Paciente infeccioso en la sala");
+        } catch (InterruptedException ex) {
+            Logger.getLogger(PInfeccion.class.getName()).log(Level.SEVERE, null, ex);
+        }
         try {
             Thread.sleep((rnd.nextInt(5) + 1) * 1000);
         } catch (InterruptedException ex) {
             Logger.getLogger(PNormal.class.getName()).log(Level.SEVERE, null, ex);
         }
         cs.SalePacienteI();
+        System.out.println("Sale el Paciente infeccioso en la sala");
     }
 }
