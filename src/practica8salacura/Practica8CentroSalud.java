@@ -63,7 +63,7 @@ public class Practica8CentroSalud extends javax.swing.JFrame {
         Random rnd = new Random();
         rnd.setSeed(System.currentTimeMillis());
         try {
-            limpiador=new Limpiador(cs);
+            limpiador=new Limpiador(cs,0);
              pacientes[0] = new Thread(limpiador);
             pacientes[0].start();
             for (int i = 1; i < 50; i++) {

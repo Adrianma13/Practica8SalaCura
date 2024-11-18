@@ -15,9 +15,11 @@ import java.util.logging.Logger;
 public class Limpiador implements Runnable {
 
     private CentroSalud cs;
+    int id;
 
-    public Limpiador(CentroSalud cs) {
+    public Limpiador(CentroSalud cs,int id) {
         this.cs = cs;
+        this.id=id;
     }
 
     @Override
@@ -26,7 +28,7 @@ public class Limpiador implements Runnable {
         rnd.setSeed(System.currentTimeMillis());
         while (true) {
             try {
-                cs.EntraLimpiador();
+                cs.EntraLimpiador(id);
                 System.out.println("Entra el limpiador en la sala");
             } catch (InterruptedException ex) {
                 Logger.getLogger(PInfeccion.class.getName()).log(Level.SEVERE, null, ex);
@@ -36,7 +38,7 @@ public class Limpiador implements Runnable {
             } catch (InterruptedException ex) {
                 Logger.getLogger(PNormal.class.getName()).log(Level.SEVERE, null, ex);
             }
-            cs.SaleLimpiador();
+            cs.SaleLimpiador(id);
             System.out.println("Sale el limpiador en la sala");
         }
     }

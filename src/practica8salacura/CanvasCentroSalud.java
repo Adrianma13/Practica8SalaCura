@@ -55,7 +55,7 @@ public class CanvasCentroSalud extends Canvas {
     private ArrayList<Pacientes> colaNormales = new ArrayList();
     private ArrayList<Pacientes> colaConsulta = new ArrayList();
 
-    Image infectadoimg, normalimg, sanitarioimg, virusimg;
+    Image infectadoimg, normalimg, sanitarioimg, virusimg, limpiadorimg;
 
     public CanvasCentroSalud(int ancho, int alto) throws InterruptedException {
         super.setSize(ancho, alto);
@@ -65,6 +65,7 @@ public class CanvasCentroSalud extends Canvas {
         normalimg = Toolkit.getDefaultToolkit().getImage(getClass().getResource("imagenes/Pnormal.png"));
         sanitarioimg = Toolkit.getDefaultToolkit().getImage(getClass().getResource("imagenes/sanitario.png"));
         virusimg = Toolkit.getDefaultToolkit().getImage(getClass().getResource("imagenes/Virus.png"));
+        limpiadorimg = Toolkit.getDefaultToolkit().getImage(getClass().getResource("imagenes/limpiador.png"));
 
         MediaTracker dibu = new MediaTracker(this);
         dibu.addImage(infectadoimg, 0);
@@ -75,10 +76,12 @@ public class CanvasCentroSalud extends Canvas {
         dibu.waitForID(2);
         dibu.addImage(virusimg, 3);
         dibu.waitForID(3);
+        dibu.addImage(virusimg, 4);
+        dibu.waitForID(4);
     }
 
     public synchronized void entraCola(int tipo, int id) {
-        if (tipo == 0) {
+        if (tipo == 1) {
             colaInfectados.add(new Pacientes(id, tipo));
         } else {
             colaNormales.add(new Pacientes(id, tipo));
@@ -88,7 +91,7 @@ public class CanvasCentroSalud extends Canvas {
     }
 
     public synchronized void saleCola(int tipo, int id) {
-        if (tipo == 0) {
+        if (tipo == 1) {
             colaInfectados.remove(new Pacientes(id, tipo));
         } else {
             colaNormales.remove(new Pacientes(id, tipo));
@@ -114,8 +117,42 @@ public class CanvasCentroSalud extends Canvas {
                 i++;
             }
         }
+        if (tipo == 1) {
+            colaConsulta.add(new Pacientes(-1, 4));
+        }
         colaConsulta.remove(i);
 
+        repaint();
+    }
+
+    public synchronized void entraLimpiador(int tipo, int id) {
+        colaConsulta.add(new Pacientes(id, tipo));
+
+        repaint();
+    }
+
+    public synchronized void saleLimpiador(int tipo, int id) {
+        boolean encontrado = false;
+        int i = 0;
+
+        while (!encontrado) {
+            if (colaConsulta.get(i).getid() == id) {
+                encontrado = true;
+            } else {
+                i++;
+            }
+        }
+        colaConsulta.remove(i);
+        encontrado = false;
+        i = 0;
+        while (!encontrado) {
+            if (colaConsulta.get(i).getid() == -1) {
+                encontrado = true;
+            } else {
+                i++;
+            }
+        }
+        colaConsulta.remove(i);
         repaint();
     }
 
@@ -126,77 +163,49 @@ public class CanvasCentroSalud extends Canvas {
 
     @Override
     public void paint(Graphics g) {
-        int[] posColaPerro = {10, 10, 460, 150};
-        int[] posColaGato = {480, 10, 460, 150};
+        
 
         Image imagen = createImage(getWidth(), getHeight());
         Font f1 = new Font("Arial", Font.BOLD, 15);
-        Graphics gbuf = imagen.getGraphics();
-        gbuf.setFont(f1);
+        Graphics og = imagen.getGraphics();
+        og.setFont(f1);
 
         setBackground(Color.lightGray);
 
-        //gbuf.drawImage(centrosaludimg, 375, 300, null);
-        gbuf.setColor(Color.white);
-        gbuf.fillRect(posColaPerro[0], posColaPerro[1], posColaPerro[2], posColaPerro[3]);
-        gbuf.fillRect(posColaGato[0], posColaGato[1], posColaGato[2], posColaGato[3]);
+        og.setColor(Color.white);
+        og.fillRect(10, 10, 865, 150);
+        og.fillRect(10, 400, 865, 150);
 
         for (int i = 0; i < colaInfectados.size(); i++) {
-            gbuf.setColor(Color.GREEN);
-            gbuf.drawString(""+colaInfectados.get(i).getid(), 92 * i + 15, 24);
-            gbuf.drawImage(infectadoimg, 92 * i + 5, 28, null);
+            og.setColor(Color.GREEN);
+            og.drawString("" + colaInfectados.get(i).getid(), 92 * i + 15, 24);
+            og.drawImage(infectadoimg, 92 * i + 5, 28, 100, 100, this);
         }
 
         for (int i = 0; i < colaNormales.size(); i++) {
-            gbuf.setColor(Color.MAGENTA);
-            gbuf.drawString(""+colaNormales.get(i).getid(), 92 * i + 487, 24);
-            gbuf.drawImage(normalimg, 92 * i + 487, 28, null);
+            og.setColor(Color.MAGENTA);
+            og.drawString("" + colaNormales.get(i).getid(), 92 * i + 15, 400);
+            og.drawImage(normalimg, 92 * i + 5, 400, 100, 100, this);
         }
-
-        if (colaConsulta.size() > 0) {
-            if (colaConsulta.get(0).gettipo()== 0) {
-                gbuf.setColor(Color.GREEN);
-                gbuf.drawImage(infectadoimg, 430, 200, null);
-            } else {
-                gbuf.setColor(Color.MAGENTA);
-                gbuf.drawImage(normalimg, 440, 200, null);
+        for (int i = 0; i < colaConsulta.size(); i++) {
+            og.setColor(Color.MAGENTA);
+            if (colaConsulta.get(i).gettipo() == 0) {
+                og.drawString("" + colaConsulta.get(i).getid(), 200 * i + 387, 240);
+                og.drawImage(normalimg, 200 * i + 387, 260, 100, 100, this);
+                 og.drawImage(sanitarioimg, 200 * i + 300, 260, 100, 100, this);
+            } else if (colaConsulta.get(i).gettipo() == 1) {
+                og.drawString("" + colaConsulta.get(i).getid(),  200 * i + 387, 240);
+                og.drawImage(infectadoimg, 200 * i + 387, 260, 100, 100, this);
+                og.drawImage(sanitarioimg, 200 * i + 300, 260, 100, 100, this);
+                og.drawImage(sanitarioimg, 200 * i + 330, 260, 100, 100, this);
+            } else if (colaConsulta.get(i).gettipo() == 2) {
+                og.drawString("" + colaConsulta.get(i).getid(), 92 * i + 487, 240);
+                og.drawImage(limpiadorimg, 92 * i + 487, 260, 100, 100, this);
+            } else if (colaConsulta.get(i).gettipo() == 4) {
+                og.drawImage(virusimg, 50, 200, 100, 100, this);
             }
-           // gbuf.drawString(colaConsulta.get(0).getNombre(), 440, 190);
-        }
 
-        if (colaConsulta.size() > 1) {
-            if (colaConsulta.get(1).gettipo()== 0) {
-                gbuf.setColor(Color.GREEN);
-                gbuf.drawImage(infectadoimg, 560, 310, null);
-            } else {
-                gbuf.setColor(Color.MAGENTA);
-                gbuf.drawImage(normalimg, 570, 310, null);
-            }
-           // gbuf.drawString(colaConsulta.get(1).getNombre(), 570, 300);
         }
-
-        if (colaConsulta.size() > 2) {
-            if (colaConsulta.get(2).gettipo()== 0) {
-                gbuf.setColor(Color.GREEN);
-                gbuf.drawImage(infectadoimg, 430, 460, null);
-            } else {
-                gbuf.setColor(Color.MAGENTA);
-                gbuf.drawImage(normalimg, 440, 460, null);
-            }
-          // gbuf.drawString(colaConsulta.get(2).getNombre(), 440, 450);
-        }
-
-        if (colaConsulta.size() > 3) {
-            if (colaConsulta.get(3).gettipo()== 0) {
-                gbuf.setColor(Color.GREEN);
-                gbuf.drawImage(infectadoimg, 290, 310, null);
-            } else {
-                gbuf.setColor(Color.MAGENTA);
-                gbuf.drawImage(normalimg, 300, 310, null);
-            }
-           // gbuf.drawString(colaConsulta.get(3).getNombre(), 300, 300);
-        }
-
         g.drawImage(imagen, 0, 0, this);
     }
 

@@ -26,7 +26,7 @@ public class PNormal extends Thread {
         rnd.setSeed(System.currentTimeMillis());
         
         try {
-            cs.EntraPacienteN();
+            cs.EntraPacienteN(id);
             System.out.println("Entra el Paciente Normal en la sala");
         } catch (InterruptedException ex) {
             Logger.getLogger(PNormal.class.getName()).log(Level.SEVERE, null, ex);
@@ -36,7 +36,7 @@ public class PNormal extends Thread {
         } catch (InterruptedException ex) {
             Logger.getLogger(PNormal.class.getName()).log(Level.SEVERE, null, ex);
         }
-        cs.SalePacienteN();
+        cs.SalePacienteN(id);
         System.out.println("Sale el Paciente Normal en la sala");
     }
 }

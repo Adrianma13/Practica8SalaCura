@@ -38,7 +38,7 @@ public class PInfeccion implements Runnable {
         } catch (InterruptedException ex) {
             Logger.getLogger(PNormal.class.getName()).log(Level.SEVERE, null, ex);
         }
-        cs.SalePacienteI();
+        cs.SalePacienteI(id);
         System.out.println("Sale el Paciente infeccioso en la sala");
     }
 }
